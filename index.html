@@ -2231,7 +2231,8 @@ async function renderSalesReport(container) {
         ticket_num: s.ticket_num,
         tracking_number: s.tracking_number, 
         evidence_image: s.evidence_image, 
-        is_invoiceable: s.is_invoiceable === true || String(s.is_invoiceable) === 'true', // <--- JALAMOS ESTATUS DE FACTURA
+        is_invoiceable: s.is_invoiceable === true || String(s.is_invoiceable) === 'true', 
+        client_name: s.client_name, // <--- JALAMOS EL CLIENTE AQUI
         date: s.date,
         payment_method: s.payment_method,
         cashier: s.cashier,
@@ -2375,6 +2376,7 @@ async function renderSalesReport(container) {
                 <td class="p-3 text-muted">${formatLocalTime(t.date)}</td>
                 <td class="p-3">
                   <div class="font-bold text-accent">#${t.ticket_num || 'S/N'}</div>
+                  ${t.client_name && t.client_name !== 'Público General' ? `<div class="text-xs font-bold text-accent2 mt-0.5 whitespace-nowrap">👤 ${t.client_name}</div>` : ''}
                   ${t.tracking_number ? `<div class="text-xs text-muted mt-0.5 whitespace-nowrap">📦 ${t.tracking_number}</div>` : ''}
                   
                   <div class="flex gap-2 mt-1.5 items-center">
@@ -2428,11 +2430,16 @@ async function renderSalesReport(container) {
                 <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${m.category==='in'?'bg-success/20 text-success':'bg-danger/20 text-danger'}">
                   ${m.category==='in' ? 'ENTRADA (+)' : 'SALIDA (-)'}
                 </span>
-             <td class="p-3 font-medium">
-  <button type="button" onclick="window.viewClientHistory('${c.id}')" class="text-accent hover:underline font-bold text-left flex items-center gap-1" title="Ver compras del mes">
-    <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i> ${c.name}
-  </button>
-</td>
+              </td>
+              <td class="p-3 font-medium">${m.name||'-'}</td>
+              <td class="p-3 font-bold ${m.category==='in'?'text-success':'text-danger'}">${m.category==='in'?'+':'-'}${m.quantity||0}</td>
+              <td class="p-3 text-muted truncate max-w-xs">${m.description||'-'}</td>
+              <td class="p-3 text-muted">${m.cashier||'-'}</td>
+              <td class="p-3 text-center">
+                <button type="button" data-del-mov="${m.id}" class="p-2 hover:bg-danger/20 rounded-lg transition text-danger" title="Revertir Movimiento y Restaurar Stock">
+                  <i data-lucide="rotate-ccw" class="w-4 h-4 pointer-events-none"></i>
+                </button>
+              </td>
             </tr>`).join('') || `<tr><td colspan="7" class="p-10 text-center text-muted">Sin movimientos en ${monthName}</td></tr>`}
         </tbody>
       </table>
