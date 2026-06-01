@@ -1122,6 +1122,7 @@ document.getElementById('cash-flow-form').onsubmit = async (e) => {
   btn.disabled = true; btn.textContent = 'Guardando...';
 
  // Generamos el ID temporal antes para que ambos lo compartan
+ // Generamos el ID temporal antes para que ambos lo compartan
  const tempId = 'temp_cf_' + genId(); 
 
 const newRecord = {
@@ -4773,6 +4774,7 @@ const coleccionesCatalogos = ['productos', 'usuarios', 'categorias', 'configurac
         if (index !== -1) allRecords.splice(index, 1);
       }
     });
+    // ... el resto de la función sigue igual
     // ... el resto de la función sigue igual
 
     if (hasChanges) {
