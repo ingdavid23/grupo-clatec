@@ -1121,19 +1121,23 @@ document.getElementById('cash-flow-form').onsubmit = async (e) => {
   const btn = document.getElementById('cash-flow-confirm');
   btn.disabled = true; btn.textContent = 'Guardando...';
 
-  const newRecord = {
-    type: 'movement', // Se guarda en "movimientos" para no crear colecciones nuevas
-    category: activeCashFlowType === 'in' ? 'cash_in' : 'cash_out',
-    amount: amount,
-    description: reason,
-    date: now(),
-    cashier: currentUser?.username || 'admin',
-    name: activeCashFlowType === 'in' ? 'Entrada Extra a Caja' : 'Salida de Caja / Gasto',
-    quantity: 0, total: 0, buy_price: 0, sell_price: 0, stock: 0, min_stock: 0, payment_method: 'Efectivo', status: 'active', initial_cash: 0, final_cash: 0, sales_total: 0
-  };
+ // Generamos el ID temporal antes para que ambos lo compartan
+ const tempId = 'temp_cf_' + genId(); 
 
-  await dbSdk.create(newRecord);
-  allRecords.push({...newRecord, id: 'temp_cf_' + genId()}); // Reflejar en RAM al instante
+const newRecord = {
+  type: 'movement', // Se guarda en "movimientos" para no crear colecciones nuevas
+  category: activeCashFlowType === 'in' ? 'cash_in' : 'cash_out',
+  amount: amount,
+  description: reason,
+  date: now(),
+  cashier: currentUser?.username || 'admin',
+  name: activeCashFlowType === 'in' ? 'Entrada Extra a Caja' : 'Salida de Caja / Gasto',
+  quantity: 0, total: 0, buy_price: 0, sell_price: 0, stock: 0, min_stock: 0, payment_method: 'Efectivo', status: 'active', initial_cash: 0, final_cash: 0, sales_total: 0,
+  temp_id: tempId // <-- NUEVO: Etiquetamos el registro para cazar al fantasma
+};
+
+await dbSdk.create(newRecord);
+allRecords.push({...newRecord, id: tempId}); // Usamos la misma etiqueta aquí
 
   document.getElementById('cash-flow-modal').classList.add('hidden');
   document.getElementById('cash-flow-modal').classList.remove('flex');
@@ -3843,22 +3847,24 @@ function renderCashierPOS() {
     renderCartItems();
 
     // === AQUÍ PEGAS LA NUEVA FUNCIÓN ===
-    // === AQUÍ PEGAS LA NUEVA FUNCIÓN ===
     window.updateCashBadge = () => {
       if (!sessionStart) return;
-      // Calcula las ventas más recientes directamente de la base de datos
       const liveSales = records('sale').filter(s => s.cashier === (currentUser?.username||'') && s.date >= sessionStart);
       
-      // NUEVO: Calcula sumando el efectivo puro y las partes en efectivo de los pagos Mixtos
       const liveCash = liveSales.reduce((a, s) => {
           if (s.cash_part !== undefined) return a + s.cash_part;
           if (s.payment_method === 'Efectivo') return a + (s.total || 0);
           return a;
       }, 0);
       
+      // Calculamos las entradas y salidas del turno activo
+      const liveFlows = records('movement').filter(m => m.cashier === (currentUser?.username||'') && m.date >= sessionStart && (m.category === 'cash_in' || m.category === 'cash_out'));
+      const flowIn = liveFlows.filter(m => m.category === 'cash_in').reduce((a,m) => a + (m.amount || 0), 0);
+      const flowOut = liveFlows.filter(m => m.category === 'cash_out').reduce((a,m) => a + (m.amount || 0), 0);
+
       const badge = document.getElementById('top-cash-badge');
       if (badge) {
-        badge.innerHTML = `<i data-lucide="wallet" class="w-3 h-3"></i> ${currency(initialCash + liveCash)}`;
+        badge.innerHTML = `<i data-lucide="wallet" class="w-3 h-3"></i> ${currency(initialCash + liveCash + flowIn - flowOut)}`;
         lucide.createIcons();
       }
     };
@@ -4746,9 +4752,15 @@ const coleccionesCatalogos = ['productos', 'usuarios', 'categorias', 'configurac
       hasChanges = true;
       const docData = { id: change.doc.id, ...change.doc.data() };
       
-      // Magia Anti-Fantasmas
+      // Magia Anti-Fantasmas (Ventas)
       if (docData.ticket_num) {
           const fantasmaIdx = allRecords.findIndex(r => r.id.startsWith('temp_') && r.ticket_num === docData.ticket_num);
+          if (fantasmaIdx > -1) allRecords.splice(fantasmaIdx, 1);
+      }
+
+      // <-- NUEVO: Magia Anti-Fantasmas (Entradas y Salidas de Caja) -->
+      if (docData.temp_id) {
+          const fantasmaIdx = allRecords.findIndex(r => r.id === docData.temp_id);
           if (fantasmaIdx > -1) allRecords.splice(fantasmaIdx, 1);
       }
 
@@ -4761,6 +4773,7 @@ const coleccionesCatalogos = ['productos', 'usuarios', 'categorias', 'configurac
         if (index !== -1) allRecords.splice(index, 1);
       }
     });
+    // ... el resto de la función sigue igual
 
     if (hasChanges) {
       const cloudLogo = allRecords.find(r => r.type === 'sys_file' && r.name === 'main_logo');
