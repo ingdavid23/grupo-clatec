@@ -947,10 +947,12 @@ let currentEvidenceSaleId = null;
 window.showEvidence = (saleId) => {
   const sale = allRecords.find(r => r.id === saleId);
   if (sale && sale.evidence_image) {
-    currentEvidenceSaleId = saleId; // Recordamos qué ticket estamos viendo
+    currentEvidenceSaleId = saleId; 
     document.getElementById('evidence-img-display').src = sale.evidence_image;
     document.getElementById('evidence-modal').classList.remove('hidden');
     document.getElementById('evidence-modal').classList.add('flex');
+  } else {
+    showToast('Este ticket no tiene fotografía adjunta.', 'warn');
   }
 };
 
@@ -2398,6 +2400,11 @@ async function renderSalesReport(container) {
               <td class="p-3"><span class="text-[10px] px-2 py-1 rounded-lg font-bold ${t.payment_method==='Efectivo'?'bg-success/20 text-success':'bg-accent/20 text-accent'}">${t.payment_method||'-'}</span></td>
               <td class="p-3 text-muted">${t.cashier||'-'}</td>
               <td class="p-3 text-center flex justify-center gap-2">
+                ${t.evidence_image ? `
+                <button type="button" onclick="window.showEvidence('${t.id}')" class="p-2 bg-success/10 hover:bg-success/20 rounded-lg transition text-success" title="Ver Evidencia">
+                  <i data-lucide="image" class="w-4 h-4 pointer-events-none"></i>
+                </button>` : ''}
+                
                 <button type="button" data-view-ticket="${t.id}" class="p-2 bg-accent/10 hover:bg-accent/20 rounded-lg transition text-accent" title="Ver Ticket">
                   <i data-lucide="receipt" class="w-4 h-4 pointer-events-none"></i>
                 </button>
