@@ -1123,33 +1123,33 @@ document.getElementById('cash-flow-form').onsubmit = async (e) => {
   const btn = document.getElementById('cash-flow-confirm');
   btn.disabled = true; btn.textContent = 'Guardando...';
 
- // Generamos el ID temporal antes para que ambos lo compartan
- // Generamos el ID temporal antes para que ambos lo compartan
- const tempId = 'temp_cf_' + genId(); 
+  const newRecord = {
+    type: 'movement', // Se guarda en "movimientos" para no crear colecciones nuevas
+    category: activeCashFlowType === 'in' ? 'cash_in' : 'cash_out',
+    amount: amount,
+    description: reason,
+    date: now(),
+    cashier: currentUser?.username || 'admin',
+    name: activeCashFlowType === 'in' ? 'Entrada Extra a Caja' : 'Salida de Caja / Gasto',
+    quantity: 0, total: 0, buy_price: 0, sell_price: 0, stock: 0, min_stock: 0, payment_method: 'Efectivo', status: 'active', initial_cash: 0, final_cash: 0, sales_total: 0
+  };
 
-const newRecord = {
-  type: 'movement', // Se guarda en "movimientos" para no crear colecciones nuevas
-  category: activeCashFlowType === 'in' ? 'cash_in' : 'cash_out',
-  amount: amount,
-  description: reason,
-  date: now(),
-  cashier: currentUser?.username || 'admin',
-  name: activeCashFlowType === 'in' ? 'Entrada Extra a Caja' : 'Salida de Caja / Gasto',
-  quantity: 0, total: 0, buy_price: 0, sell_price: 0, stock: 0, min_stock: 0, payment_method: 'Efectivo', status: 'active', initial_cash: 0, final_cash: 0, sales_total: 0,
-  temp_id: tempId // <-- NUEVO: Etiquetamos el registro para cazar al fantasma
-};
+  // 1. Lo guardamos directo en Firebase
+  await dbSdk.create(newRecord);
+  
+  // (SE ELIMINÓ LA LÍNEA QUE CREABA EL REGISTRO TEMPORAL DUPLICADO)
 
-await dbSdk.create(newRecord);
-allRecords.push({...newRecord, id: tempId}); // Usamos la misma etiqueta aquí
-
+  // 2. Cerramos la ventana
   document.getElementById('cash-flow-modal').classList.add('hidden');
   document.getElementById('cash-flow-modal').classList.remove('flex');
   showToast(activeCashFlowType === 'in' ? 'Entrada registrada' : 'Salida registrada', 'success');
   
   btn.disabled = false;
-  if (window.updateCashBadge) window.updateCashBadge(); // Refresca el indicador de arriba
+  
+  // 3. Actualizamos la pantalla al instante
+  if (window.updateCashBadge) window.updateCashBadge();
+  if (currentView === 'cashier-close') render(); 
 };
-
 // === ACTUALIZAMOS EL BADGE SUPERIOR PARA QUE CONSIDERE ENTRADAS Y SALIDAS ===
 window.updateCashBadge = () => {
   if (!sessionStart) return;
@@ -4615,10 +4615,12 @@ function renderCashierClose() {
         return a;
     }, 0);
     
-    // Calcular Entradas y Salidas de Caja
+    // Calcular Entradas y Salidas de Caja con desglose
     const myFlows = records('movement').filter(m => m.cashier === (currentUser?.username||'') && sessionStart && m.date >= sessionStart && (m.category === 'cash_in' || m.category === 'cash_out'));
-    const totalCashIn = myFlows.filter(m => m.category === 'cash_in').reduce((a,m) => a + (m.amount || 0), 0);
-    const totalCashOut = myFlows.filter(m => m.category === 'cash_out').reduce((a,m) => a + (m.amount || 0), 0);
+    const cashInItems = myFlows.filter(m => m.category === 'cash_in');
+    const cashOutItems = myFlows.filter(m => m.category === 'cash_out');
+    const totalCashIn = cashInItems.reduce((a,m) => a + (m.amount || 0), 0);
+    const totalCashOut = cashOutItems.reduce((a,m) => a + (m.amount || 0), 0);
 
     const expectedCash = initialCash + cashSales + totalCashIn - totalCashOut;
 
@@ -4632,11 +4634,26 @@ function renderCashierClose() {
           <div class="flex justify-between text-sm"><span class="text-muted">Efectivo cobrado:</span><span>${currency(cashSales)}</span></div>
           <div class="flex justify-between text-sm"><span class="text-muted">Transferencias cobradas:</span><span>${currency(transferSales)}</span></div>
         </div>
+        
         ${(totalCashIn > 0 || totalCashOut > 0) ? `
-        <div class="border-t border-card pt-3 space-y-2">
-          ${totalCashIn > 0 ? `<div class="flex justify-between text-sm"><span class="text-muted">Entradas Extras (Fondo, etc):</span><span class="text-success">+${currency(totalCashIn)}</span></div>` : ''}
-          ${totalCashOut > 0 ? `<div class="flex justify-between text-sm"><span class="text-muted">Salidas / Gastos pagados:</span><span class="text-danger">-${currency(totalCashOut)}</span></div>` : ''}
+        <div class="border-t border-card pt-3 space-y-3">
+          ${totalCashIn > 0 ? `
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span class="font-semibold text-txt">Entradas Extras:</span><span class="font-bold text-success">+${currency(totalCashIn)}</span></div>
+            <div class="space-y-1 pl-3 border-l-2 border-success/30">
+              ${cashInItems.map(m => `<div class="flex justify-between text-xs"><span class="text-muted truncate max-w-[200px]" title="${m.description}">${m.description}</span><span class="text-success font-medium">+${currency(m.amount)}</span></div>`).join('')}
+            </div>
+          </div>` : ''}
+          
+          ${totalCashOut > 0 ? `
+          <div>
+            <div class="flex justify-between text-sm mb-1"><span class="font-semibold text-txt">Salidas / Gastos:</span><span class="font-bold text-danger">-${currency(totalCashOut)}</span></div>
+            <div class="space-y-1 pl-3 border-l-2 border-danger/30">
+              ${cashOutItems.map(m => `<div class="flex justify-between text-xs"><span class="text-muted truncate max-w-[200px]" title="${m.description}">${m.description}</span><span class="text-danger font-medium">-${currency(m.amount)}</span></div>`).join('')}
+            </div>
+          </div>` : ''}
         </div>` : ''}
+
         <div class="border-t border-card pt-3 flex justify-between text-lg font-bold">
           <span>Efectivo total en caja esperado:</span><span class="text-accent">${currency(expectedCash)}</span>
         </div>
@@ -4676,6 +4693,11 @@ function renderCashierClose() {
         if (defaultConfig.whatsapp_number) {
           const cleanNumber = String(defaultConfig.whatsapp_number).replace(/\D/g, ''); 
           if (cleanNumber) {
+            
+            // Armar el desglose para WhatsApp
+            const waCashInDetails = cashInItems.length > 0 ? cashInItems.map(m => `  + ${currency(m.amount)} (${m.description})`).join('%0A') + '%0A' : '';
+            const waCashOutDetails = cashOutItems.length > 0 ? cashOutItems.map(m => `  - ${currency(m.amount)} (${m.description})`).join('%0A') + '%0A' : '';
+
             const waText = `*CORTE DE CAJA - ${bizName()}*%0A` +
               `Cajero: ${userToClean}%0A` +
               `Apertura: ${new Date(currentSessionStart || now()).toLocaleString('es-MX')}%0A` +
@@ -4684,8 +4706,11 @@ function renderCashierClose() {
               `Fondo inicial: ${currency(initialCash)}%0A` +
               `Ventas Efectivo: ${currency(cashSales)}%0A` +
               `Ventas Transferencia: ${currency(transferSales)}%0A` +
+              `-------------------%0A` +
               `Entradas Extras: ${currency(totalCashIn)}%0A` +
+              waCashInDetails +
               `Salidas / Gastos: ${currency(totalCashOut)}%0A` +
+              waCashOutDetails +
               `*Total Mercancía Vendida: ${currency(salesTotal)}*%0A` +
               `-------------------%0A` +
               `Efectivo Esperado: ${currency(expectedCash)}%0A` +
