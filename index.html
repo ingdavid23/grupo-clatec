@@ -2120,7 +2120,7 @@ window.openAdminTicketModal = (saleId) => {
   const logoPrintHtml = sysLogo ? `<img src="${sysLogo}" style="max-width: 140px; max-height: 80px; margin: 0 auto 10px auto; display: block; object-fit: contain;">` : '';
 
   // ¡AQUÍ ESTÁ LA CORRECCIÓN! Jala el dato correcto de la base de datos
-  const trackingHtml = clickedSale.tracking_number ? `<div class="font-bold mt-2 text-[14px] border border-black p-1 bg-gray-100">RASTREO:<br>${clickedSale.tracking_number}</div>` : '';
+  const trackingHtml = clickedSale.tracking_number ? `<div class="font-bold mt-2 text-[14px] border border-black p-1 bg-gray-100">NOTA:<br>${clickedSale.tracking_number}</div>` : '';
 
   const ticketHtml = `
    <div class="text-center mb-3">
@@ -4291,7 +4291,7 @@ const newTicket = {
       const sysLogo = getSystemLogo();
       const logoPrintHtml = sysLogo ? `<img src="${sysLogo}" style="max-width: 140px; max-height: 80px; margin: 0 auto 10px auto; display: block; object-fit: contain;">` : '';
 
-      const trackingHtml = trackingNumber ? `<div class="font-bold mt-2 text-[14px] border border-black p-1 bg-gray-100">RASTREO:<br>${trackingNumber}</div>` : '';
+      const trackingHtml = trackingNumber ? `<div class="font-bold mt-2 text-[14px] border border-black p-1 bg-gray-100">NOTA:<br>${trackingNumber}</div>` : '';
 
       const ticketHtml = `
        <div class="text-center mb-3">
@@ -4362,7 +4362,7 @@ const newTicket = {
 
       // NUEVA LÍNEA: Quita la expansión para que quepan los dos botones
       document.getElementById('btn-print-ticket').classList.remove('col-span-2');
-      const waTrackingText = trackingNumber ? `📦 *RASTREO:* ${trackingNumber}\n` : '';
+      const waTrackingText = trackingNumber ? `📦 *NOTA:* ${trackingNumber}\n` : '';
       
       const waPaymentText = paymentMethod === 'Mixto' 
         ? `TRANSFERENCIA: ${currency(transferReceived)}\nEFECTIVO: ${currency(cashReceived)}` 
@@ -4424,7 +4424,7 @@ const newTicket = {
           ticketMap.set(tId, {
             id: s.id, 
             ticket_num: s.ticket_num,
-            tracking_number: s.tracking_number, // <--- JALAMOS EL RASTREO AQUÍ
+            tracking_number: s.tracking_number, // <--- JALAMOS EL NOTA AQUÍ
             is_invoiceable: s.is_invoiceable === true || String(s.is_invoiceable) === 'true', // <--- ESTO ES LO QUE FALTABA JALAR
             date: s.date,
             payment_method: s.payment_method,
@@ -4543,7 +4543,7 @@ const newTicket = {
     const sysLogo = getSystemLogo();
   const logoPrintHtml = sysLogo ? `<img src="${sysLogo}" style="max-width: 140px; max-height: 80px; margin: 0 auto 10px auto; display: block; object-fit: contain;">` : '';
 
-  const trackingHtml = clickedSale.tracking_number ? `<div class="font-bold mt-2 text-[14px] border border-black p-1 bg-gray-100">RASTREO:<br>${clickedSale.tracking_number}</div>` : '';
+  const trackingHtml = clickedSale.tracking_number ? `<div class="font-bold mt-2 text-[14px] border border-black p-1 bg-gray-100">NOTA:<br>${clickedSale.tracking_number}</div>` : '';
 
   const ticketHtml = `
      <div class="text-center mb-3">
