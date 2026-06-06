@@ -4215,9 +4215,14 @@ function renderCashierPOS() {
 // 👇 NUEVO: CAPTURAR EL CLIENTE SELECCIONADO 👇
 const clientId = document.getElementById('pay-client-select').value;
 let clientName = 'Público General';
+let clientPhone = ''; // <--- AÑADIR: Variable para guardar el teléfono
+
 if (clientId) {
     const cObj = allRecords.find(r => r.id === clientId && r.type === 'client');
-    if (cObj) clientName = cObj.name;
+    if (cObj) {
+        clientName = cObj.name;
+        clientPhone = cObj.phone || ''; // <--- AÑADIR: Capturamos el teléfono (si lo tiene)
+    }
 }
 // 👆 ======================================== 👆
 
@@ -4346,14 +4351,14 @@ const newTicket = {
       btnConfirm.textContent = 'PAGAR';
       btnConfirm.disabled = false; 
 
-     // === LÓGICA PARA WHATSAPP: MOSTRAR Y ENVIAR ===
-     const btnWa = document.getElementById('btn-wa-ticket');
+    // === LÓGICA PARA WHATSAPP: MOSTRAR Y ENVIAR ===
+    const btnWa = document.getElementById('btn-wa-ticket');
       const waContainer = document.getElementById('wa-input-container');
       const waInput = document.getElementById('wa-number-input');
       
       btnWa.style.display = 'flex'; 
       waContainer.style.display = 'block'; 
-      waInput.value = ''; // Limpiar recuadro para nueva venta
+      waInput.value = clientPhone; // <--- CAMBIO: Asignamos el teléfono del cliente automáticamente
 
       // NUEVA LÍNEA: Quita la expansión para que quepan los dos botones
       document.getElementById('btn-print-ticket').classList.remove('col-span-2');
