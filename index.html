@@ -209,6 +209,15 @@ tailwind.config = {
         <input id="pay-evidence-base64" type="hidden">
        </div>
 
+       <div id="service-checklist-container" class="hidden border-t border-card pt-4 mt-2">
+        <label class="block text-sm font-bold text-accent mb-2"><i data-lucide="clipboard-check" class="w-4 h-4 inline-block mr-1"></i>Formato de Mantenimiento</label>
+        <button type="button" id="open-service-checklist" class="w-full bg-accent/10 border border-accent/20 text-accent font-semibold py-3 rounded-xl hover:bg-accent/20 transition flex items-center justify-center gap-2">
+          Llenar Formato de Piscina
+        </button>
+        <input type="hidden" id="pay-checklist-data">
+        <div id="checklist-status" class="text-xs text-center mt-2 font-bold text-success hidden">✅ Formato llenado y adjunto</div>
+      </div>
+
        <div class="border-t border-card pt-4 mt-2">
         <label class="block text-sm font-bold text-txt mb-2">¿Requiere Factura?</label>
         <div class="flex gap-4">
@@ -362,6 +371,227 @@ tailwind.config = {
           <button type="submit" id="cash-flow-confirm" class="flex-1 text-white font-bold py-3 rounded-xl hover:opacity-90 transition shadow-lg">Guardar</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: LLENAR CHECKLIST DE PISCINA (FORMATO COMPLETO) -->
+  <div id="checklist-modal" class="fixed inset-0 z-[10005] hidden items-center justify-center p-4 sm:p-6" style="background:rgba(0,0,0,.8)">
+    <div class="bg-surface rounded-2xl w-full max-w-4xl mx-auto modal-show flex flex-col border border-card shadow-2xl h-[95vh] overflow-hidden">
+      
+      <div class="p-4 border-b border-card shrink-0 flex justify-between items-center bg-card/20">
+        <h2 class="text-lg font-bold text-accent flex items-center gap-2">
+          <i data-lucide="clipboard-check" class="w-5 h-5"></i> Reporte Físico de Piscina
+        </h2>
+        <button type="button" id="checklist-close-top" class="text-muted hover:text-danger transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+      </div>
+
+      <form id="pool-checklist-form" class="flex-1 overflow-y-auto p-4 space-y-6">
+         
+         <!-- SECCIÓN 1: CONDICIONES PREVIAS -->
+         <div class="space-y-4">
+           <h3 class="font-bold text-sm bg-accent/10 text-accent p-2 rounded uppercase tracking-wider">1. Condiciones Previas de Piscina</h3>
+           
+           <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+             <div class="col-span-2 md:col-span-1"><label class="text-[10px] text-muted font-bold block mb-1">CANTIDAD AGUA (M³)</label><input type="number" id="chk-m3" class="w-full bg-card border border-card rounded px-3 py-1.5 text-sm focus:border-accent focus:outline-none"></div>
+             <div><label class="text-[10px] text-muted font-bold block mb-1">CLORO INI.</label><input type="text" id="chk-cloro-ini" class="w-full bg-card border border-card rounded px-3 py-1.5 text-sm focus:border-accent focus:outline-none"></div>
+             <div><label class="text-[10px] text-muted font-bold block mb-1">pH INI.</label><input type="text" id="chk-ph-ini" class="w-full bg-card border border-card rounded px-3 py-1.5 text-sm focus:border-accent focus:outline-none"></div>
+             <div><label class="text-[10px] text-muted font-bold block mb-1">TEMP INI. (°C)</label><input type="text" id="chk-temp-ini" class="w-full bg-card border border-card rounded px-3 py-1.5 text-sm focus:border-accent focus:outline-none"></div>
+             <div>
+               <label class="text-[10px] text-muted font-bold block mb-1">NIVEL AGUA</label>
+               <select id="chk-nivel" class="w-full bg-card border border-card rounded px-2 py-1.5 text-sm focus:border-accent focus:outline-none">
+                 <option value="">Seleccionar...</option><option>Ideal</option><option>Medio</option><option>Bajo</option><option>Muy Bajo</option>
+               </select>
+             </div>
+           </div>
+
+           <div class="border border-card rounded-lg p-3">
+             <label class="text-[10px] text-muted font-bold block mb-2">PROPIEDADES DEL AGUA INICIAL Y OLOR</label>
+             <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 text-xs">
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Turbia"> Turbia</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Transparente"> Transparente</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Brillante"> Brillante</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Agua Verde"> Agua Verde</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Hojas"> Hojas</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Sólidos"> Sólidos</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Arena"> Arena</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Polvo"> Polvo</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Pelo Canino"> Pelo canino</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Cabello"> Cabello</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Juguetes"> Juguetes</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Comida"> Comida</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Algas"> Algas</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Musgo"> Musgo</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Pasto"> Pasto</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-prop w-3 h-3 text-accent" value="Nata"> Nata</label>
+             </div>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+               <div><input type="text" id="chk-prop-otro" class="w-full bg-bg border border-card rounded px-2 py-1 text-xs" placeholder="Otra propiedad..."></div>
+               <div class="flex items-center gap-2">
+                 <span class="text-[10px] font-bold text-muted">OLOR:</span>
+                 <select id="chk-olor" class="flex-1 bg-bg border border-card rounded px-2 py-1 text-xs focus:border-accent focus:outline-none"><option value="">Seleccionar...</option><option>Normal</option><option>Mal Olor</option><option>Otro</option></select>
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- SECCIÓN 2: ESTADO DE EQUIPOS Y ESTRUCTURA -->
+         <div class="space-y-4">
+           <h3 class="font-bold text-sm bg-accent/10 text-accent p-2 rounded uppercase tracking-wider">2. Estado Físico y Equipos</h3>
+           
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <!-- Pared y Piso -->
+             <div class="border border-card rounded-lg p-3 space-y-2">
+               <label class="text-[10px] text-muted font-bold block border-b border-card pb-1">ESTADO PARED Y PISO</label>
+               <div class="flex gap-2 text-xs">
+                 <select id="chk-pp-estado" class="w-1/3 bg-card border border-card rounded px-2 py-1"><option value="">Estado...</option><option>Excelente</option><option>Bueno</option><option>Regular</option><option>Malo</option></select>
+                 <select id="chk-pp-tipo" class="w-1/3 bg-card border border-card rounded px-2 py-1"><option value="">Tipo...</option><option>Veneciano</option><option>Pintura</option></select>
+               </div>
+               <div class="flex flex-wrap gap-2 text-xs">
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-pp-prob w-3 h-3 text-accent" value="Lineas"> Líneas</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-pp-prob w-3 h-3 text-accent" value="Incrustado"> Incrustado</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-pp-prob w-3 h-3 text-accent" value="Manchas"> Manchas</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-pp-prob w-3 h-3 text-accent" value="Sarro"> Sarro</label>
+               </div>
+               <input type="text" id="chk-pp-obs" class="w-full bg-bg border border-card rounded px-2 py-1 text-xs" placeholder="Observaciones de pared/piso...">
+             </div>
+
+             <!-- Filtración -->
+             <div class="border border-card rounded-lg p-3 space-y-2">
+               <label class="text-[10px] text-muted font-bold block border-b border-card pb-1">EQUIPO DE FILTRACIÓN</label>
+               <div class="flex gap-2 text-xs">
+                 <select id="chk-filt-estado" class="w-1/2 bg-card border border-card rounded px-2 py-1"><option value="">Estado Gral...</option><option>Buen estado</option><option>Dañado</option><option>Mantenimiento</option><option>Necesario Cambiar</option></select>
+                 <input type="number" id="chk-filt-psi" class="w-1/2 bg-card border border-card rounded px-2 py-1" placeholder="PSI Trabajo">
+               </div>
+               <div class="flex gap-2 text-xs">
+                 <select id="chk-filt-acc" class="w-1/2 bg-card border border-card rounded px-2 py-1"><option value="">Acc. Hidráulicos...</option><option>Normal</option><option>Dañado</option><option>Mantenimiento</option></select>
+                 <select id="chk-filt-medio" class="w-1/2 bg-card border border-card rounded px-2 py-1"><option value="">Medio Filtrante...</option><option>Buen estado</option><option>Regular</option><option>Necesario Cambiar</option></select>
+               </div>
+             </div>
+
+             <!-- Calefacción y Cubierta -->
+             <div class="border border-card rounded-lg p-3 space-y-2">
+               <label class="text-[10px] text-muted font-bold block border-b border-card pb-1">CALEFACCIÓN Y CUBIERTA</label>
+               <div class="flex gap-2 text-xs">
+                 <select id="chk-cal-tipo" class="w-1/3 bg-card border border-card rounded px-2 py-1"><option value="">Calefacción...</option><option>Solar</option><option>Gas</option><option>Eléctrico</option><option>N/A</option></select>
+                 <select id="chk-cal-estado" class="w-1/3 bg-card border border-card rounded px-2 py-1"><option value="">Est. Calefacción</option><option>Buen estado</option><option>Dañado</option><option>Req. Mantenimiento</option></select>
+                 <select id="chk-cub-estado" class="w-1/3 bg-card border border-card rounded px-2 py-1"><option value="">Est. Cubierta</option><option>Bueno</option><option>Regular</option><option>Malo</option></select>
+               </div>
+               <input type="text" id="chk-cal-obs" class="w-full bg-bg border border-card rounded px-2 py-1 text-xs" placeholder="Obs. calefacción...">
+             </div>
+
+             <!-- Accesorios Mantenimiento -->
+             <div class="border border-card rounded-lg p-3 space-y-2">
+               <label class="text-[10px] text-muted font-bold block border-b border-card pb-1">ACCESORIOS MANTENIMIENTO</label>
+               <div class="flex flex-wrap gap-2 text-xs">
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-acc w-3 h-3 text-accent" value="Red"> Red</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-acc w-3 h-3 text-accent" value="Cepillo"> Cepillo</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-acc w-3 h-3 text-accent" value="Maneral"> Maneral</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-acc w-3 h-3 text-accent" value="Indicador pH/Cl"> Ind. pH/Cl</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-acc w-3 h-3 text-accent" value="Aspiradora"> Aspiradora</label>
+                 <label class="flex items-center gap-1"><input type="checkbox" class="chk-acc w-3 h-3 text-accent" value="Manguera"> Manguera</label>
+               </div>
+               <div class="flex gap-2">
+                 <select id="chk-acc-estado" class="w-1/3 bg-card border border-card rounded px-2 py-1 text-xs"><option value="">Estado Gral...</option><option>Bueno</option><option>Regular</option><option>Malo</option></select>
+                 <input type="text" id="chk-acc-obs" class="flex-1 bg-bg border border-card rounded px-2 py-1 text-xs" placeholder="Observaciones accesorios...">
+               </div>
+             </div>
+           </div>
+         </div>
+
+         <!-- SECCIÓN 3: PROCESO -->
+         <div class="space-y-4">
+           <h3 class="font-bold text-sm bg-accent/10 text-accent p-2 rounded uppercase tracking-wider">3. Proceso del Mantenimiento</h3>
+           <div class="border border-card rounded-lg p-3 space-y-3">
+             <div class="flex flex-wrap gap-4 text-xs font-medium">
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-proceso w-4 h-4 text-accent" value="Filtracion"> Filtración</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-proceso w-4 h-4 text-accent" value="Aspirado"> Aspirado</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-proceso w-4 h-4 text-accent" value="Desague"> Desagüe</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-proceso w-4 h-4 text-accent" value="Cepillado"> Cepillado</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-proceso w-4 h-4 text-accent" value="Recoleccion"> Recolección</label>
+               <label class="flex items-center gap-1"><input type="checkbox" class="chk-proceso w-4 h-4 text-accent" value="Desecho de reposo"> Desecho proceso reposo</label>
+             </div>
+             
+             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-card/20 p-2 rounded">
+               <label class="flex items-center gap-2"><input type="checkbox" id="chk-proc-reposo" class="w-4 h-4 text-accent"> Proceso Reposo</label>
+               <input type="text" id="chk-proc-espe" class="bg-card border border-card rounded px-2 py-1" placeholder="Especificaciones">
+               <input type="number" id="chk-proc-hrs" class="bg-card border border-card rounded px-2 py-1" placeholder="Tiempo Reposo (Hrs)">
+             </div>
+             
+             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+               <input type="text" id="chk-proc-acciones" class="bg-bg border border-card rounded px-2 py-1.5" placeholder="Acciones Necesarias">
+               <input type="text" id="chk-proc-visita" class="bg-bg border border-card rounded px-2 py-1.5" placeholder="Prox visita para retirar precipitado">
+             </div>
+           </div>
+         </div>
+
+         <!-- SECCIÓN 4: QUÍMICOS Y FINALES -->
+         <div class="space-y-4">
+           <h3 class="font-bold text-sm bg-accent/10 text-accent p-2 rounded uppercase tracking-wider">4. Productos, Calefacción y Finales</h3>
+           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+             
+             <!-- Productos -->
+             <div class="border border-card rounded-lg p-3">
+               <label class="text-[10px] text-muted font-bold block border-b border-card pb-1 mb-2">QUÍMICOS APLICADOS</label>
+               <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                 <div class="flex items-center justify-between"><span>Cloro (KG)</span> <input type="number" step="0.01" id="chk-q-cloro" class="w-16 bg-card border border-card rounded px-1 py-1 text-center"></div>
+                 <div class="flex items-center justify-between"><span>Shock Cloro (KG)</span> <input type="number" step="0.01" id="chk-q-shock" class="w-16 bg-card border border-card rounded px-1 py-1 text-center"></div>
+                 <div class="flex items-center justify-between"><span>Algicida (KG)</span> <input type="number" step="0.01" id="chk-q-algi" class="w-16 bg-card border border-card rounded px-1 py-1 text-center"></div>
+                 <div class="flex items-center justify-between"><span>pH + (KG)</span> <input type="number" step="0.01" id="chk-q-php" class="w-16 bg-card border border-card rounded px-1 py-1 text-center"></div>
+                 <div class="flex items-center justify-between"><span>Clarificador (KG)</span> <input type="number" step="0.01" id="chk-q-clari" class="w-16 bg-card border border-card rounded px-1 py-1 text-center"></div>
+                 <div class="flex items-center justify-between"><span>pH - (KG)</span> <input type="number" step="0.01" id="chk-q-phm" class="w-16 bg-card border border-card rounded px-1 py-1 text-center"></div>
+                 <div class="col-span-2 flex items-center justify-between"><span>Desincrustante (Lts/Zona)</span> <input type="text" id="chk-q-desin" class="flex-1 ml-2 bg-card border border-card rounded px-2 py-1 text-center"></div>
+                 <div class="col-span-2"><input type="text" id="chk-q-otro" class="w-full bg-bg border border-card rounded px-2 py-1" placeholder="Otro producto..."></div>
+               </div>
+             </div>
+
+             <!-- Calefacción y Fin -->
+             <div class="border border-card rounded-lg p-3 space-y-3">
+               <label class="text-[10px] text-muted font-bold block border-b border-card pb-1">CALEFACCIÓN Y MEDICIÓN FINAL</label>
+               <div class="flex gap-2 text-xs">
+                 <input type="text" id="chk-fin-t1" class="w-1/3 bg-card border border-card rounded px-2 py-1" placeholder="T. Entrada °C">
+                 <input type="text" id="chk-fin-t2" class="w-1/3 bg-card border border-card rounded px-2 py-1" placeholder="T. Reposo °C">
+                 <input type="text" id="chk-fin-t3" class="w-1/3 bg-card border border-card rounded px-2 py-1" placeholder="T. Salida °C">
+               </div>
+               <div class="flex gap-2 text-xs items-center bg-card/20 p-2 rounded">
+                 <label class="flex items-center gap-1 w-1/2"><input type="checkbox" id="chk-fin-lavado" class="w-4 h-4 text-accent"> Lavado medio filtrante</label>
+                 <input type="number" id="chk-fin-psi" class="w-1/2 bg-card border border-card rounded px-2 py-1" placeholder="PSI Final">
+               </div>
+               <div class="flex gap-2 text-xs">
+                 <input type="text" id="chk-fin-cl" class="w-1/3 bg-surface border-2 border-card rounded px-2 py-1.5 font-bold" placeholder="Cloro Final">
+                 <input type="text" id="chk-fin-ph" class="w-1/3 bg-surface border-2 border-card rounded px-2 py-1.5 font-bold" placeholder="pH Final">
+                 <input type="text" id="chk-fin-temp" class="w-1/3 bg-surface border-2 border-card rounded px-2 py-1.5 font-bold" placeholder="Temp Final °C">
+               </div>
+               <textarea id="chk-fin-obs" class="w-full bg-bg border border-card rounded px-2 py-1 text-xs" rows="2" placeholder="Observaciones adicionales..."></textarea>
+             </div>
+             
+           </div>
+         </div>
+         
+      </form>
+
+      <div class="p-4 border-t border-card shrink-0 flex gap-3 bg-surface">
+        <button type="button" id="checklist-cancel" class="flex-1 bg-card text-muted py-3 rounded-xl font-bold hover:bg-bg transition border border-card">Cancelar</button>
+        <button type="button" id="checklist-save" class="flex-1 bg-accent text-white py-3 rounded-xl font-bold hover:opacity-90 transition shadow-lg">Guardar Formato Físico</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: VER CHECKLIST GUARDADO (ADMIN Y CAJERO) -->
+  <div id="view-checklist-modal" class="fixed inset-0 z-[10006] hidden items-center justify-center p-4 sm:p-6" style="background:rgba(0,0,0,.8)">
+    <div class="bg-surface rounded-2xl w-full max-w-2xl mx-auto modal-show flex flex-col border border-card shadow-2xl max-h-[90vh] overflow-hidden">
+      <div class="p-4 border-b border-card flex justify-between items-center bg-card/20 shrink-0">
+        <h2 class="text-lg font-bold text-accent flex items-center gap-2">
+          <i data-lucide="clipboard-list" class="w-5 h-5"></i> Reporte del Mantenimiento
+        </h2>
+        <button type="button" onclick="document.getElementById('view-checklist-modal').classList.add('hidden'); document.getElementById('view-checklist-modal').classList.remove('flex');" class="text-muted hover:text-danger transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+      </div>
+      <div id="view-checklist-content" class="text-sm p-4 overflow-y-auto flex-1 space-y-4 bg-[#f8fafc]">
+        <!-- Aquí se inyecta el resumen HTML -->
+      </div>
+      <div class="p-4 border-t border-card shrink-0">
+        <button type="button" onclick="document.getElementById('view-checklist-modal').classList.add('hidden'); document.getElementById('view-checklist-modal').classList.remove('flex');" class="w-full bg-card text-txt py-3 rounded-xl font-bold hover:bg-card/80 transition border border-card shadow-sm">Cerrar Reporte</button>
+      </div>
     </div>
   </div>
 
@@ -2238,6 +2468,7 @@ async function renderSalesReport(container) {
         ticket_num: s.ticket_num,
         tracking_number: s.tracking_number, 
         evidence_image: s.evidence_image, 
+        checklist_data: s.checklist_data, // <--- ESTO ES LO QUE FALTABA
         is_invoiceable: s.is_invoiceable === true || String(s.is_invoiceable) === 'true', 
         client_name: s.client_name, // <--- JALAMOS EL CLIENTE AQUI
         date: s.date,
@@ -2403,6 +2634,11 @@ async function renderSalesReport(container) {
                 ${t.evidence_image ? `
                 <button type="button" onclick="window.showEvidence('${t.id}')" class="p-2 bg-success/10 hover:bg-success/20 rounded-lg transition text-success" title="Ver Evidencia">
                   <i data-lucide="image" class="w-4 h-4 pointer-events-none"></i>
+                </button>` : ''}
+
+                ${t.checklist_data ? `
+                <button type="button" onclick="window.showChecklist('${t.id}')" class="p-2 bg-accent/10 hover:bg-accent/20 rounded-lg transition text-accent" title="Ver Formato de Servicio">
+                  <i data-lucide="clipboard-list" class="w-4 h-4 pointer-events-none"></i>
                 </button>` : ''}
                 
                 <button type="button" data-view-ticket="${t.id}" class="p-2 bg-accent/10 hover:bg-accent/20 rounded-lg transition text-accent" title="Ver Ticket">
@@ -2998,6 +3234,11 @@ async function renderInvoicing(container) {
                   <button type="button" onclick="window.showEvidence('${t.id}')" class="p-2 bg-success/10 hover:bg-success/20 rounded-lg transition text-success" title="Ver Evidencia">
                     <i data-lucide="image" class="w-4 h-4 pointer-events-none"></i>
                   </button>` : ''}
+
+                  ${t.checklist_data ? `
+                <button type="button" onclick="window.showChecklist('${t.id}')" class="p-2 bg-accent/10 hover:bg-accent/20 rounded-lg transition text-accent" title="Ver Formato de Servicio">
+                  <i data-lucide="clipboard-list" class="w-4 h-4 pointer-events-none"></i>
+                </button>` : ''}
                   <button type="button" data-view-ticket="${t.id}" class="p-2 bg-accent/10 hover:bg-accent/20 rounded-lg transition text-accent" title="Ver Ticket">
                     <i data-lucide="receipt" class="w-4 h-4 pointer-events-none"></i>
                   </button>
@@ -3658,6 +3899,168 @@ function renderSettings(container) {
   lucide.createIcons();
 }
 
+// === LOGICA DE CHECKLIST DE PISCINA ===
+
+document.getElementById('checklist-close-top').onclick = () => {
+  document.getElementById('checklist-modal').classList.add('hidden');
+  document.getElementById('checklist-modal').classList.remove('flex');
+};
+
+document.getElementById('checklist-cancel').onclick = () => {
+  document.getElementById('checklist-modal').classList.add('hidden');
+  document.getElementById('checklist-modal').classList.remove('flex');
+};
+
+document.getElementById('open-service-checklist').onclick = () => {
+  document.getElementById('checklist-modal').classList.remove('hidden');
+  document.getElementById('checklist-modal').classList.add('flex');
+};
+
+document.getElementById('checklist-save').onclick = (e) => {
+  e.preventDefault();
+  
+  // Recolectar múltiples checkboxes
+  const propiedadesAgua = Array.from(document.querySelectorAll('.chk-prop:checked')).map(cb => cb.value);
+  const paredProb = Array.from(document.querySelectorAll('.chk-pp-prob:checked')).map(cb => cb.value);
+  const accManto = Array.from(document.querySelectorAll('.chk-acc:checked')).map(cb => cb.value);
+  const procesos = Array.from(document.querySelectorAll('.chk-proceso:checked')).map(cb => cb.value);
+
+  // Armar el Objeto Masivo
+  const data = {
+    // 1. Previas
+    volumen: document.getElementById('chk-m3').value,
+    cl_ini: document.getElementById('chk-cloro-ini').value,
+    ph_ini: document.getElementById('chk-ph-ini').value,
+    temp_ini: document.getElementById('chk-temp-ini').value,
+    nivel: document.getElementById('chk-nivel').value,
+    prop_agua: propiedadesAgua,
+    prop_otro: document.getElementById('chk-prop-otro').value,
+    olor: document.getElementById('chk-olor').value,
+    
+    // 2. Físico y Equipos
+    pp_estado: document.getElementById('chk-pp-estado').value,
+    pp_tipo: document.getElementById('chk-pp-tipo').value,
+    pp_prob: paredProb,
+    pp_obs: document.getElementById('chk-pp-obs').value,
+    
+    filt_estado: document.getElementById('chk-filt-estado').value,
+    filt_psi: document.getElementById('chk-filt-psi').value,
+    filt_acc: document.getElementById('chk-filt-acc').value,
+    filt_medio: document.getElementById('chk-filt-medio').value,
+    
+    cal_tipo: document.getElementById('chk-cal-tipo').value,
+    cal_estado: document.getElementById('chk-cal-estado').value,
+    cub_estado: document.getElementById('chk-cub-estado').value,
+    cal_obs: document.getElementById('chk-cal-obs').value,
+    
+    acc_lista: accManto,
+    acc_estado: document.getElementById('chk-acc-estado').value,
+    acc_obs: document.getElementById('chk-acc-obs').value,
+    
+    // 3. Proceso
+    procesos: procesos,
+    proc_reposo: document.getElementById('chk-proc-reposo').checked,
+    proc_espe: document.getElementById('chk-proc-espe').value,
+    proc_hrs: document.getElementById('chk-proc-hrs').value,
+    proc_acc: document.getElementById('chk-proc-acciones').value,
+    proc_visita: document.getElementById('chk-proc-visita').value,
+    
+    // 4. Químicos
+    q_cloro: document.getElementById('chk-q-cloro').value,
+    q_shock: document.getElementById('chk-q-shock').value,
+    q_algi: document.getElementById('chk-q-algi').value,
+    q_php: document.getElementById('chk-q-php').value,
+    q_clari: document.getElementById('chk-q-clari').value,
+    q_phm: document.getElementById('chk-q-phm').value,
+    q_desin: document.getElementById('chk-q-desin').value,
+    q_otro: document.getElementById('chk-q-otro').value,
+    
+    // 5. Finales
+    fin_t1: document.getElementById('chk-fin-t1').value,
+    fin_t2: document.getElementById('chk-fin-t2').value,
+    fin_t3: document.getElementById('chk-fin-t3').value,
+    fin_lavado: document.getElementById('chk-fin-lavado').checked,
+    fin_psi: document.getElementById('chk-fin-psi').value,
+    fin_cl: document.getElementById('chk-fin-cl').value,
+    fin_ph: document.getElementById('chk-fin-ph').value,
+    fin_temp: document.getElementById('chk-fin-temp').value,
+    fin_obs: document.getElementById('chk-fin-obs').value
+  };
+
+  // Guardar string en el input oculto
+  document.getElementById('pay-checklist-data').value = JSON.stringify(data);
+  document.getElementById('checklist-status').classList.remove('hidden');
+
+  // Cerrar modal
+  document.getElementById('checklist-modal').classList.add('hidden');
+  document.getElementById('checklist-modal').classList.remove('flex');
+  showToast('Formato anexado a la nota');
+};
+
+window.showChecklist = (saleId) => {
+  const sale = allRecords.find(r => r.id === saleId);
+  if (sale && sale.checklist_data) {
+    const d = sale.checklist_data;
+    
+    const html = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <div class="bg-white p-3 rounded-lg border border-card shadow-sm space-y-2">
+          <h4 class="font-bold text-xs text-accent border-b border-card pb-1">CONDICIONES INICIALES</h4>
+          <p class="text-xs"><b>Volumen:</b> ${d.volumen || '-'} M³ | <b>Nivel:</b> ${d.nivel || '-'}</p>
+          <p class="text-xs"><b>Cloro:</b> ${d.cl_ini || '-'} | <b>pH:</b> ${d.ph_ini || '-'} | <b>Temp:</b> ${d.temp_ini || '-'}</p>
+          <p class="text-xs"><b>Propiedades:</b> ${d.prop_agua?.join(', ') || 'Ninguna'} ${d.prop_otro ? '('+d.prop_otro+')' : ''}</p>
+          <p class="text-xs"><b>Olor:</b> ${d.olor || '-'}</p>
+        </div>
+
+        <div class="bg-white p-3 rounded-lg border border-card shadow-sm space-y-2">
+          <h4 class="font-bold text-xs text-accent border-b border-card pb-1">ESTADO FÍSICO</h4>
+          <p class="text-xs"><b>Pared/Piso:</b> ${d.pp_estado || '-'} (${d.pp_tipo || '-'}) - Problemas: ${d.pp_prob?.join(', ') || 'Ninguno'}</p>
+          <p class="text-xs"><b>Filtración:</b> ${d.filt_estado || '-'} (${d.filt_psi || '-'} PSI) | Medio: ${d.filt_medio || '-'}</p>
+          <p class="text-xs"><b>Calefacción:</b> ${d.cal_tipo || '-'} (${d.cal_estado || '-'})</p>
+          <p class="text-xs text-muted"><b>Obs:</b> ${d.pp_obs || 'Sin observaciones'}</p>
+        </div>
+
+        <div class="bg-white p-3 rounded-lg border border-card shadow-sm space-y-2">
+          <h4 class="font-bold text-xs text-accent border-b border-card pb-1">PROCESO</h4>
+          <p class="text-xs"><b>Ejecutado:</b> ${d.procesos?.join(', ') || 'Ninguno'}</p>
+          <p class="text-xs"><b>Reposo:</b> ${d.proc_reposo ? 'Sí' : 'No'} (${d.proc_hrs || '0'} Hrs) - ${d.proc_espe || '-'}</p>
+          <p class="text-xs"><b>Acciones Nec:</b> ${d.proc_acc || '-'}</p>
+          <p class="text-xs text-warn font-semibold"><b>Próx. Visita:</b> ${d.proc_visita || '-'}</p>
+        </div>
+
+        <div class="bg-white p-3 rounded-lg border border-card shadow-sm space-y-2">
+          <h4 class="font-bold text-xs text-accent border-b border-card pb-1">QUÍMICOS APLICADOS</h4>
+          <div class="grid grid-cols-2 gap-1 text-[11px]">
+            <span><b>Cloro:</b> ${d.q_cloro || '-'} Kg</span><span><b>Shock:</b> ${d.q_shock || '-'} Kg</span>
+            <span><b>Algicida:</b> ${d.q_algi || '-'} Kg</span><span><b>pH+:</b> ${d.q_php || '-'} Kg</span>
+            <span><b>Clarificador:</b> ${d.q_clari || '-'} Kg</span><span><b>pH-:</b> ${d.q_phm || '-'} Kg</span>
+            <span class="col-span-2"><b>Desinc:</b> ${d.q_desin || '-'} | <b>Otro:</b> ${d.q_otro || '-'}</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-3 rounded-lg border border-card shadow-sm space-y-2 md:col-span-2">
+          <h4 class="font-bold text-xs text-success border-b border-card pb-1">MEDICIÓN FINAL</h4>
+          <div class="grid grid-cols-3 gap-2 text-xs mb-1">
+            <span class="font-bold">Cloro: <span class="text-txt">${d.fin_cl || '-'}</span></span>
+            <span class="font-bold">pH: <span class="text-txt">${d.fin_ph || '-'}</span></span>
+            <span class="font-bold">Temp: <span class="text-txt">${d.fin_temp || '-'} °C</span></span>
+          </div>
+          <p class="text-[11px]"><b>Lavado Filtro:</b> ${d.fin_lavado ? 'Realizado' : 'No'} | <b>PSI Final:</b> ${d.fin_psi || '-'}</p>
+          <p class="text-[11px] text-muted mt-1 bg-card/30 p-1.5 rounded"><b>Obs. Final:</b> ${d.fin_obs || 'Ninguna'}</p>
+        </div>
+
+      </div>
+    `;
+    document.getElementById('view-checklist-content').innerHTML = html;
+    document.getElementById('view-checklist-modal').classList.remove('hidden');
+    document.getElementById('view-checklist-modal').classList.add('flex');
+  } else {
+    showToast('Este ticket no contiene formato de mantenimiento', 'warn');
+  }
+};
+// ======================================
+
 function renderCashierPOS() {
   const products = records('product');
 
@@ -4150,6 +4553,26 @@ function renderCashierPOS() {
     
     const btnConfirm = document.getElementById('pay-confirm');
     btnConfirm.disabled = true;
+
+    // === DETECTAR SI HAY UN SERVICIO EN EL CARRITO ===
+    const hasService = cart.some(item => {
+      const prodRec = allRecords.find(r => r.id === item.id);
+      return prodRec && prodRec.is_service;
+    });
+
+    if (hasService) {
+      document.getElementById('service-checklist-container').classList.remove('hidden');
+      document.getElementById('pay-checklist-data').value = '';
+      document.getElementById('checklist-status').classList.add('hidden');
+      document.getElementById('pool-checklist-form').reset();
+      // 👇 Cambiamos 'add' por 'remove' para quitar el bloqueo 👇
+      document.getElementById('checklist-save').classList.remove('opacity-50', 'pointer-events-none');
+    } else {
+      document.getElementById('service-checklist-container').classList.add('hidden');
+      document.getElementById('pay-checklist-data').value = '';
+    }
+
+    // 👆 ========================================== 👆
     
     const modal = document.getElementById('cash-payment-modal');
     modal.classList.remove('hidden');
@@ -4242,6 +4665,12 @@ else {
 const newTicket = {
  type: 'sale',
  ticket_num: ticketNum,
+ tracking_number: trackingNumber, 
+ evidence_image: evidenceImage || null,
+ evidence_delete_at: evidenceImage ? deleteAt.toISOString() : null,
+ // 👇 ESTA LÍNEA ES LA QUE GUARDA EL JSON 👇
+ checklist_data: document.getElementById('pay-checklist-data').value ? JSON.parse(document.getElementById('pay-checklist-data').value) : null,
+ //... el resto sigue igual
  tracking_number: trackingNumber, 
  evidence_image: evidenceImage || null,
  evidence_delete_at: evidenceImage ? deleteAt.toISOString() : null,
@@ -4421,11 +4850,14 @@ const newTicket = {
     todayMySales.forEach(s => { // <--- AQUÍ ESTÁ EL CAMBIO QUE REVIVE LA PESTAÑA
         const tId = s.ticket_num || s.id;
         if(!ticketMap.has(tId)) {
-          ticketMap.set(tId, {
-            id: s.id, 
-            ticket_num: s.ticket_num,
-            tracking_number: s.tracking_number, // <--- JALAMOS EL NOTA AQUÍ
-            is_invoiceable: s.is_invoiceable === true || String(s.is_invoiceable) === 'true', // <--- ESTO ES LO QUE FALTABA JALAR
+            ticketMap.set(tId, {
+  id: s.id, 
+  ticket_num: s.ticket_num,
+  tracking_number: s.tracking_number, 
+  evidence_image: s.evidence_image, 
+  checklist_data: s.checklist_data, // <-- VERIFICA QUE ESTA LÍNEA EXISTA AQUÍ
+  is_invoiceable: s.is_invoiceable === true || String(s.is_invoiceable) === 'true',
+         
             date: s.date,
             payment_method: s.payment_method,
             cashier: s.cashier,
