@@ -1354,7 +1354,7 @@ document.getElementById('cash-flow-form').onsubmit = async (e) => {
   btn.disabled = true; btn.textContent = 'Guardando...';
 
   const newRecord = {
-    type: 'movement', // Se guarda en "movimientos" para no crear colecciones nuevas
+    type: 'movement', 
     category: activeCashFlowType === 'in' ? 'cash_in' : 'cash_out',
     amount: amount,
     description: reason,
@@ -1364,15 +1364,32 @@ document.getElementById('cash-flow-form').onsubmit = async (e) => {
     quantity: 0, total: 0, buy_price: 0, sell_price: 0, stock: 0, min_stock: 0, payment_method: 'Efectivo', status: 'active', initial_cash: 0, final_cash: 0, sales_total: 0
   };
 
-  // 1. Lo guardamos directo en Firebase
+  // 1. Lo guardamos como movimiento de caja
   await dbSdk.create(newRecord);
   
-  // (SE ELIMINÓ LA LÍNEA QUE CREABA EL REGISTRO TEMPORAL DUPLICADO)
+  // === NUEVO: SI ES SALIDA, SE REGISTRA TAMBIÉN EN EGRESOS ===
+  if (activeCashFlowType === 'out') {
+      await dbSdk.create({
+          type: 'expense', 
+          name: reason, 
+          code: '', 
+          category: 'Salida de Caja POS', // Lo categorizamos para saber de dónde viene
+          buy_price: 0, sell_price: 0, stock: 0, min_stock: 0, quantity: 0, total: 0,
+          payment_method: 'Efectivo', 
+          cashier: currentUser?.username || 'admin', 
+          date: now(),
+          amount: amount, 
+          description: reason, 
+          status: 'active', 
+          initial_cash: 0, final_cash: 0, sales_total: 0
+      });
+  }
+  // ===========================================================
 
   // 2. Cerramos la ventana
   document.getElementById('cash-flow-modal').classList.add('hidden');
   document.getElementById('cash-flow-modal').classList.remove('flex');
-  showToast(activeCashFlowType === 'in' ? 'Entrada registrada' : 'Salida registrada', 'success');
+  showToast(activeCashFlowType === 'in' ? 'Entrada registrada' : 'Salida registrada (Añadida a Egresos)', 'success');
   
   btn.disabled = false;
   
